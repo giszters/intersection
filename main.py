@@ -5,15 +5,16 @@ from shapely.geometry import Polygon
 
 
 class SearchPosition:
+    """SearchPosition is Polygon with date."""
     def __init__(self, area, date):
-        self.area = area
+        self.polygon = area
         self.date = date
 
     def __str__(self):
-        return f'SearchPosition({self.date}, {self.area}'
+        return f'SearchPosition({self.date}, {self.polygon})'
 
 
-def get_usr_req():
+def get_usr_request():
     area = str2polygon('55.58734,-72.26807,0 47.12514,-67.57458,0 38.84882,-59.56221,0 45.44252,-58.01071,0 55.15113,-65.58617,0 64.48255,-69.85429,0 55.58734,-72.26807,0')
     return SearchPosition(area, None)
 
@@ -56,14 +57,22 @@ def get_positions_from_kml(kml_path):
     return pmarks
 
 
-def get_available_placemarks(polygon):
+def is_matching(request, position):
+    #if request.area.intersects(position.area) and request.date == position.date:
+    if request.polygon.intersects(position.polygon):
+        return True
+
+
+def main():
+    request = get_usr_request()
+
     kml_path = "../Sentinel-1A_MP_20210427T160000_20210517T180000.kml"
-    kml_pos = get_positions_from_kml(kml_path)
-    for kpos in kml_pos:
-        if kpos.area.intersects(polygon.area):
+    available = get_positions_from_kml(kml_path)
+
+    for position in available:
+        if is_matching(request, position):
             print('Got one!')
 
 
 if __name__ == '__main__':
-    usr_polygon = get_usr_req()
-    get_available_placemarks(usr_polygon)
+    main()
